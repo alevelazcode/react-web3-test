@@ -3,6 +3,9 @@ import { BLOCKCHAIN_ENVIRONMENT } from "./blockchainEnvironment";
 import { NETWORK_NAME } from "./networkName";
 import { TESTNET_NETWORKS, defaultTestnetNetwork } from "./testnetNetworks";
 
+const sepoliaAlchemyKey = API_KEYS.alchemy.ETHEREUM.SEPOLIA;
+const mainnetAlchemyKey = API_KEYS.alchemy.ETHEREUM.MAINNET;
+
 export const rpcUrls = Object.freeze({
   [BLOCKCHAIN_ENVIRONMENT.TESTNET]: {
     [NETWORK_NAME.ETHEREUM]: {
@@ -11,10 +14,12 @@ export const rpcUrls = Object.freeze({
         "https://endpoints.omniatech.io/v1/eth/goerli/public",
       ],
       [TESTNET_NETWORKS[NETWORK_NAME.ETHEREUM].SEPOLIA]: [
-        // The first RPC URL is the one that will be used by default in the app
-        // The alchemy RPC is the most reliable one
-        `https://eth-sepolia.g.alchemy.com/v2/${API_KEYS.alchemy.ETHEREUM.SEPOLIA}`,
-        `wss://eth-sepolia.g.alchemy.com/v2/${API_KEYS.alchemy.ETHEREUM.SEPOLIA}`,
+        sepoliaAlchemyKey
+          ? `https://eth-sepolia.g.alchemy.com/v2/${sepoliaAlchemyKey}`
+          : "https://ethereum-sepolia-rpc.publicnode.com",
+        sepoliaAlchemyKey
+          ? `wss://eth-sepolia.g.alchemy.com/v2/${sepoliaAlchemyKey}`
+          : "wss://ethereum-sepolia-rpc.publicnode.com",
         "https://ethereum-sepolia-rpc.publicnode.com",
         "https://endpoints.omniatech.io/v1/eth/sepolia/public",
       ],
@@ -28,8 +33,12 @@ export const rpcUrls = Object.freeze({
   },
   [BLOCKCHAIN_ENVIRONMENT.MAINNET]: {
     [NETWORK_NAME.ETHEREUM]: [
-      `https://eth-sepolia.g.alchemy.com/v2/${API_KEYS.alchemy.ETHEREUM.MAINNET}`,
-      `wss://eth-sepolia.g.alchemy.com/v2/${API_KEYS.alchemy.ETHEREUM.MAINNET}`,
+      mainnetAlchemyKey
+        ? `https://eth-mainnet.g.alchemy.com/v2/${mainnetAlchemyKey}`
+        : "https://ethereum.publicnode.com",
+      mainnetAlchemyKey
+        ? `wss://eth-mainnet.g.alchemy.com/v2/${mainnetAlchemyKey}`
+        : "wss://ethereum-rpc.publicnode.com",
       "https://ethereum.publicnode.com",
       "https://eth.llamarpc.com",
       "https://rpc.mevblocker.io",

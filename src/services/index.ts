@@ -1,3 +1,3 @@
-export * from "./alchemy";
+export * from "./blockchain";
 export * from "./externalConnect";
 export * from "./metamak";

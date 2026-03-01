@@ -3,7 +3,7 @@ import { chainId } from "@constants/chainIds";
 import { TESTNET_NETWORKS, TestnetNetwork } from "@constants/testnetNetworks";
 import { UnitNetwork } from "@constants/unitNetwork";
 import { MetamaskClassService, metamaskSupport } from "@services";
-import { AlchemyService } from "@services/alchemy";
+import { BlockchainService } from "@services/blockchain";
 import { AppError, showError } from "@utils";
 import { JsonRpcSigner } from "ethers";
 import { createRef } from "react";
@@ -18,8 +18,8 @@ interface HistoricalState {
 const metamaskInstanceRef =
   createRef<MetamaskClassService | null>() as React.MutableRefObject<MetamaskClassService | null>;
 
-const alchemyInstanceRef =
-  createRef<AlchemyService | null>() as React.MutableRefObject<AlchemyService | null>;
+const blockchainInstanceRef =
+  createRef<BlockchainService | null>() as React.MutableRefObject<BlockchainService | null>;
 interface SendTokensPayload {
   address: string;
   amount: number;
@@ -50,7 +50,7 @@ interface WalletStoreState {
   sendToken: (payload: SendTokensPayload) => Promise<void>;
   estimateGas: (payload: SendTokensPayload) => Promise<string | void>;
   getMetamaskInstance: () => MetamaskClassService;
-  getAlchemyInstance: () => AlchemyService;
+  getBlockchainInstance: () => BlockchainService;
   onDisconnectMetamask: () => void;
   onAccountsChanged: (accounts: string[]) => void;
   onChainChanged: (chainId: string) => void;
@@ -94,11 +94,11 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
   wallet: initialState,
   onAccountsChanged: async accounts => {
     if (accounts.length > 0) {
-      const alchemy = get().getAlchemyInstance();
+      const blockchain = get().getBlockchainInstance();
       const account = accounts[0];
       const [{ balance, contractAddress }, historical] = await Promise.all([
-        alchemy.getAllBalances(account),
-        alchemy.getHistoricalData(account),
+        blockchain.getAllBalances(account),
+        blockchain.getHistoricalData(account),
       ]);
       set(state => ({
         wallet: {
@@ -114,14 +114,14 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
   },
   onSubscribeContractTransfer: () => {
     const metamask = get().getMetamaskInstance();
-    const alchemy = get().getAlchemyInstance();
+    const blockchain = get().getBlockchainInstance();
     const { address, contractAddress } = get().wallet;
     if (!address || !contractAddress) return;
     const contracts = Object.values(contractAddress);
     const fnCallback = async () => {
       const [{ balance, contractAddress }, historical] = await Promise.all([
-        alchemy.getAllBalances(address),
-        alchemy.getHistoricalData(address),
+        blockchain.getAllBalances(address),
+        blockchain.getHistoricalData(address),
       ]);
       set(state => ({
         wallet: {
@@ -189,12 +189,12 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
     });
     return metamaskInstanceRef.current;
   },
-  getAlchemyInstance: () => {
-    if (alchemyInstanceRef.current) return alchemyInstanceRef.current;
-    alchemyInstanceRef.current = new AlchemyService({
+  getBlockchainInstance: () => {
+    if (blockchainInstanceRef.current) return blockchainInstanceRef.current;
+    blockchainInstanceRef.current = new BlockchainService({
       network: getEnvironmentNetwork(get().wallet),
     });
-    return alchemyInstanceRef.current;
+    return blockchainInstanceRef.current;
   },
   networkEnvironment: () => {
     const { networkEnvironment, network } = get().wallet;
@@ -289,8 +289,8 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
       return;
     }
     try {
-      const alchemy = get().getAlchemyInstance();
-      const { balance, contractAddress } = await alchemy.getAllBalances(
+      const blockchain = get().getBlockchainInstance();
+      const { balance, contractAddress } = await blockchain.getAllBalances(
         account.address
       );
       set(state => ({
@@ -312,9 +312,9 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
     if (!address || !network || !networkEnvironment) return;
     set(state => ({ wallet: { ...state.wallet, isLoading: true } }));
     try {
-      const alchemy = get().getAlchemyInstance();
+      const blockchain = get().getBlockchainInstance();
       const { balance, contractAddress } =
-        await alchemy.getAllBalances(address);
+        await blockchain.getAllBalances(address);
       set(state => ({
         wallet: {
           ...state.wallet,
@@ -345,10 +345,10 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
     }));
 
     try {
-      const alchemy = new AlchemyService({
+      const blockchain = new BlockchainService({
         network: getEnvironmentNetwork(wallet),
       });
-      const historical = await alchemy.getHistoricalData(wallet.address);
+      const historical = await blockchain.getHistoricalData(wallet.address);
 
       set(state => ({
         wallet: {
@@ -378,9 +378,9 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
       if (!metamask)
         throw new Error("Metamask not supported or not installed.");
       const address = await metamask.connect();
-      const alchemy = get().getAlchemyInstance();
+      const blockchain = get().getBlockchainInstance();
       const { balance, contractAddress } =
-        await alchemy.getAllBalances(address);
+        await blockchain.getAllBalances(address);
       set(state => ({
         wallet: {
           ...state.wallet,

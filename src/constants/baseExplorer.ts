@@ -7,6 +7,21 @@ export enum EXPLORER_CATEGORY {
   "ADDRESS" = "ADDRESS",
 }
 
+export const ETHERSCAN_API_BASE_URL = Object.freeze({
+  [NETWORK_NAME.ETHEREUM]: {
+    [BLOCKCHAIN_ENVIRONMENT.MAINNET]: "https://api.etherscan.io/api",
+    [BLOCKCHAIN_ENVIRONMENT.TESTNET]: {
+      [TESTNET_NETWORKS.ETHEREUM.GOERLI]: "https://api-goerli.etherscan.io/api",
+      [TESTNET_NETWORKS.ETHEREUM.SEPOLIA]:
+        "https://api-sepolia.etherscan.io/api",
+    },
+  },
+  [NETWORK_NAME.POLYGON]: {
+    [BLOCKCHAIN_ENVIRONMENT.MAINNET]: "https://api.polygonscan.com/api",
+    [BLOCKCHAIN_ENVIRONMENT.TESTNET]: "https://api-testnet.polygonscan.com/api",
+  },
+});
+
 // This is the base URL for the explorer of each network
 // Avoid magic strings
 export const EXPLORER_BASE_URL = Object.freeze({

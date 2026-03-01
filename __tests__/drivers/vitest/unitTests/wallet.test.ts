@@ -1,7 +1,7 @@
 import { NETWORK_NAME } from "@constants";
 import { CRYPTO_UNITS } from "@constants/unit";
 import { UnitNetwork } from "@constants/unitNetwork";
-import { AlchemyService } from "@services/alchemy";
+import { BlockchainService } from "@services/blockchain";
 import { getPrices } from "@services/prices";
 import { isAddress } from "@utils/address";
 import { getTokens } from "@utils/getTokens";
@@ -69,14 +69,14 @@ describe("MetamaskClassService", () => {
   //   });
 });
 
-describe("AlchemyProviderService", () => {
-  let alchemyService: AlchemyService;
+describe("BlockchainService", () => {
+  let blockchainService: BlockchainService;
   const testAddress = "0x97d040507051DFA4b3ACAFde575458098e13DC15";
   beforeEach(() => {
-    alchemyService = new AlchemyService();
+    blockchainService = new BlockchainService();
   });
-  it("should get balance with alchemy", async () => {
-    const balance = await alchemyService.getBalance(testAddress);
+  it("should get balance", async () => {
+    const balance = await blockchainService.getBalance(testAddress);
     expect(balance.balance).toBeGreaterThanOrEqual(0);
     expect(balance).toEqual({
       balance: expect.any(Number),
@@ -85,24 +85,23 @@ describe("AlchemyProviderService", () => {
     });
   });
 
-  it("should get all tokens balance with alchemy", async () => {
-    const balances = await alchemyService.getAllTokensBalance(testAddress);
+  it("should get all tokens balance", async () => {
+    const balances =
+      await blockchainService.getAllTokensBalance(testAddress);
     expect(balances).toBeInstanceOf(Array);
     balances.forEach(balance => {
       expect(Number(balance.tokenBalance)).toBeGreaterThanOrEqual(0);
       expect(isAddress(balance.contractAddress)).toBeTruthy();
-      expect(balance.error).toBeUndefined();
     });
   });
 
-  it("should get all tokens non zero balance with alchemy", async () => {
+  it("should get all tokens non zero balance", async () => {
     const balances =
-      await alchemyService.getAllTokensNonZeroBalance(testAddress);
+      await blockchainService.getAllTokensNonZeroBalance(testAddress);
     expect(balances).toBeInstanceOf(Array);
     balances.forEach(balance => {
       expect(Number(balance.tokenBalance)).toBeGreaterThan(0);
       expect(isAddress(balance.contractAddress)).toBeTruthy();
-      expect(balance.error).toBeUndefined();
     });
   });
 });

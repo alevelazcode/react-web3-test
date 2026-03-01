@@ -113,8 +113,9 @@ make create-env-file
 
 Essential variables in `.env`:
 
-- `VITE_ALCHEMY_API_KEY_ETH_MAINNET`: Your Alchemy API key for the Ethereum mainnet. Alchemy provides a more optimized RPC and additional SDK support, simplifying tasks that might become overly complex with ethers.js and web3.js. Useful for dApp development where reliable mainnet interactions are crucial. 🌐
-- `VITE_ALCHEMY_API_KEY_ETH_SEPOLIA`: Your Alchemy API key for the Sepolia testnet. 🛠️
+- `VITE_ALCHEMY_API_KEY_ETH_MAINNET`: Your Alchemy API key for the Ethereum mainnet. Used as an RPC endpoint URL for reliable JSON-RPC access via ethers.js. 🌐
+- `VITE_ALCHEMY_API_KEY_ETH_SEPOLIA`: Your Alchemy API key for the Sepolia testnet. Used as an RPC endpoint URL for reliable JSON-RPC access via ethers.js. 🛠️
+- `VITE_ETHERSCAN_API_KEY`: Your Etherscan API key. Used to fetch transaction history data (normal, internal, and ERC20 transfers). Free tier available at https://etherscan.io/apis. 🔍
 - `VITE_COINGECKO_API_KEY`: Your API key for CoinGecko. This service allows you to fetch real-time token and cryptocurrency prices for free, adding valuable data to your dApp. 📈
 
 ## Installation and Running with PNPN

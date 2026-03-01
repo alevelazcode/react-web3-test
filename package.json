@@ -15,7 +15,6 @@
     "test:e2e": "env-cmd -f ./__tests__/drivers/synpress/.env npx synpress run -cf synpress.config.ts"
   },
   "dependencies": {
-    "alchemy-sdk": "^3.2.0",
     "axios": "^1.6.8",
     "copy-text-to-clipboard": "^3.2.0",
     "dayjs": "^1.11.10",
