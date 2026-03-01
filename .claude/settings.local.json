@@ -5,7 +5,10 @@
       "Bash(npx tsc --noEmit)",
       "Bash(pnpm build)",
       "Bash(pnpm why gh-pages)",
-      "Bash(pnpm why serialize-javascript)"
+      "Bash(pnpm why serialize-javascript)",
+      "Bash(pnpm add -D @tailwindcss/postcss)",
+      "Bash(timeout 15 pnpm dev)",
+      "Bash(pnpm lint)"
     ]
   }
 }

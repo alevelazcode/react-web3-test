@@ -1,8 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.js";
 
 :root {
   font-family: Montserrat, Inter, system-ui, Avenir, Helvetica, Arial,
@@ -80,13 +79,13 @@ body {
   }
 
   .custom-datatable {
-    @apply w-full rounded-lg dark:bg-transparent bg-transparent min-w-[50rem] overflow-hidden !important;
+    @apply !w-full !rounded-lg dark:!bg-transparent !bg-transparent !min-w-[50rem] !overflow-hidden;
   }
 
   .custom-datatable-row,
   .custom-datatable tr,
   .custom-datatable-header {
-    @apply bg-transparent dark:bg-transparent p-4 !important;
+    @apply !bg-transparent dark:!bg-transparent !p-4;
   }
   .text-contrast {
     @apply text-gray-950  dark:text-white;

@@ -105,9 +105,6 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
     });
     this.provider = provider;
 
-    this.websocketProvider = new WebSocketProvider(
-      rpcUrls.TESTNET.ETHEREUM.SEPOLIA[1]
-    );
     // This is the chainId for the network you want to connect
     // We need to convert it to hexadecimal
     const getChainId = () => {
@@ -132,6 +129,11 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
       environment === BLOCKCHAIN_ENVIRONMENT.TESTNET
         ? defaultTestnetContractAddress[`${blockchain}`]
         : contractAddress[`${environment}`][`${blockchain}`];
+
+    const wsUrl = this.rpcUrls.find((url: string) => url.startsWith("wss://"));
+    this.websocketProvider = wsUrl
+      ? new WebSocketProvider(wsUrl)
+      : new WebSocketProvider(this.rpcUrls[1] ?? this.rpcUrls[0]);
   }
 
   getAccounts = async (): Promise<string> => {
@@ -145,7 +147,7 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
     } catch (error) {
       const e = error as MetamaskError;
       if (e.code === 4001) {
-        throw new Error("User rejected request");
+        throw new Error("User rejected request", { cause: error });
       }
       if (e.code === 4902) {
         try {
@@ -228,18 +230,6 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
     const txResponse = await contract.transfer(tx.to, amount);
     return txResponse.hash;
   };
-
-  estimateGasOfTxOfToken = async () =>
-    // tx: TransactionRequest,
-    // contract: string
-    {
-      // const signer = await this.getSigner();
-      // const contractInstance = new Contract(contract, ABI_ERC20, signer);
-      // const decimals = await contractInstance.decimals();
-      // if (!tx.value) throw new Error("Value is required");
-      //
-      return undefined;
-    };
 
   getCurrentFeeData = async () => {
     const feeData = await this.provider.getFeeData();
@@ -470,7 +460,7 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
       this.address = res;
       return res;
     } catch (error) {
-      throw new AppError("Error connecting to MetaMask.");
+      throw new AppError("Error connecting to MetaMask.", { cause: error });
     }
   };
 
@@ -522,7 +512,7 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
       };
     } catch (error) {
       console.error("Error getting wallet info:", error);
-      throw new Error("Error getting wallet information.");
+      throw new Error("Error getting wallet information.", { cause: error });
     }
   };
 
@@ -532,7 +522,7 @@ export class MetamaskClassService extends ExternalConnectMethod<EXTERNAL_METHODS
       if (accounts.length === 0) return;
       return accounts[0];
     } catch (error) {
-      throw new Error("Error getting wallet information.");
+      throw new Error("Error getting wallet information.", { cause: error });
     }
   };
 

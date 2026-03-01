@@ -17,7 +17,7 @@ export const ClipboardCopyBtn: FCC<CopyClipboardBtnProps> = ({
     try {
       await copyToClipboard(text);
       showSuccess("Copied to clipboard");
-    } catch (e) {
+    } catch {
       showError("Failed to copy to clipboard");
     }
   };

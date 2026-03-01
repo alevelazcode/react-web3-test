@@ -4,9 +4,8 @@ import { TESTNET_NETWORKS, TestnetNetwork } from "@constants/testnetNetworks";
 import { UnitNetwork } from "@constants/unitNetwork";
 import { MetamaskClassService, metamaskSupport } from "@services";
 import { BlockchainService } from "@services/blockchain";
-import { AppError, showError } from "@utils";
+import { showError } from "@utils";
 import { JsonRpcSigner } from "ethers";
-import { createRef } from "react";
 import { create } from "zustand";
 import { Balance, HistoricalData } from "./wallet.types";
 
@@ -15,11 +14,8 @@ interface HistoricalState {
   historical: HistoricalData[];
 }
 
-const metamaskInstanceRef =
-  createRef<MetamaskClassService | null>() as React.MutableRefObject<MetamaskClassService | null>;
-
-const blockchainInstanceRef =
-  createRef<BlockchainService | null>() as React.MutableRefObject<BlockchainService | null>;
+let metamaskInstance: MetamaskClassService | null = null;
+let blockchainInstance: BlockchainService | null = null;
 interface SendTokensPayload {
   address: string;
   amount: number;
@@ -149,10 +145,11 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
   onChainChanged: async () => {
     const metamask = get().getMetamaskInstance();
     const id = await metamask.getChainId();
-    if (id !== chainId.TESTNET.ETHEREUM.SEPOLIA)
-      throw new AppError(
+    if (id !== chainId.TESTNET.ETHEREUM.SEPOLIA) {
+      showError(
         "Please switch to Sepolia network. Other networks are not supported."
       );
+    }
   },
   onDisconnectMetamask: () => {
     set(state => ({
@@ -182,29 +179,25 @@ export const useWalletStore = create<WalletStoreState>((set, get) => ({
     metamask.removeChainChanged(get().onChainChanged);
   },
   getMetamaskInstance: () => {
-    if (metamaskInstanceRef.current) return metamaskInstanceRef.current;
-    metamaskInstanceRef.current = MetamaskClassService.initialize({
+    if (metamaskInstance) return metamaskInstance;
+    metamaskInstance = MetamaskClassService.initialize({
       blockchain: get().wallet.network,
       environment: get().wallet.networkEnvironment.environment,
     });
-    return metamaskInstanceRef.current;
+    return metamaskInstance;
   },
   getBlockchainInstance: () => {
-    if (blockchainInstanceRef.current) return blockchainInstanceRef.current;
-    blockchainInstanceRef.current = new BlockchainService({
+    if (blockchainInstance) return blockchainInstance;
+    blockchainInstance = new BlockchainService({
       network: getEnvironmentNetwork(get().wallet),
     });
-    return blockchainInstanceRef.current;
+    return blockchainInstance;
   },
   networkEnvironment: () => {
     const { networkEnvironment, network } = get().wallet;
     return networkEnvironment?.environment === BLOCKCHAIN_ENVIRONMENT.TESTNET
       ? network
       : networkEnvironment.testnetNetwork;
-  },
-  unsubscribeMetamaskEvents: () => {
-    const metamask = get().getMetamaskInstance();
-    metamask.removeDisconnect;
   },
   estimateGas: async ({ address: toAddr, amount, token }) => {
     const { address: addr, network } = get().wallet;

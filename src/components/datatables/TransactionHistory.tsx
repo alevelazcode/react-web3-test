@@ -11,7 +11,7 @@ import {
   DataTable,
   DataTableRowGroupHeaderTemplateType,
 } from "primereact/datatable";
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useMemo } from "react";
 
 interface Props {
   loading: boolean;
@@ -87,13 +87,15 @@ export const TransactionHistoryTable: FC<Props> = ({
   loading = false,
   id = "transaction-history",
 }) => {
+  const historicalWithDay = useMemo(
+    () => historical.map(item => ({ ...item, day: formatDateUTC(item.date) })),
+    [historical]
+  );
+
   return (
     <DataTable
       id={id}
-      value={historical.map(item => ({
-        ...item,
-        day: formatDateUTC(item.date),
-      }))}
+      value={historicalWithDay}
       sortMode="single"
       rowGroupMode="subheader"
       loading={loading}
@@ -102,9 +104,7 @@ export const TransactionHistoryTable: FC<Props> = ({
       // size={"small"}
       groupRowsBy="day"
       tableClassName={"custom-datatable"}
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-expect-error
-      rowClassName={"custom-datatable-row"}
+      rowClassName={() => "custom-datatable-row"}
       rowGroupHeaderTemplate={DayHeaderTemplate}
       sortOrder={-1}
     >

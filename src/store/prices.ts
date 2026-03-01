@@ -1,7 +1,6 @@
 import { CRYPTO_UNITS } from "@constants/unit";
 import { Currency, getPrices } from "@services/prices";
 import { create } from "zustand";
-import { useWalletStore } from "./wallet";
 
 interface Price {
   symbol: CRYPTO_UNITS;
@@ -17,19 +16,16 @@ const initialState: StatePrices = {
   isLoading: false,
 };
 interface PriceStoreState {
-  getPrices: (currency?: Currency) => void;
+  getPrices: (tokenSymbols: string[], currency?: Currency) => void;
   prices: StatePrices;
 }
 export const usePriceStore = create<PriceStoreState>(set => ({
   prices: initialState,
-  getPrices: async currency => {
+  getPrices: async (tokenSymbols, currency) => {
+    if (tokenSymbols.length === 0) return;
     set(state => ({ prices: { ...state.prices, isLoading: true } }));
     try {
-      // Get the token symbols from the wallet store state to only fetch the prices of the tokens in the wallet
-      const tokenInBalance = useWalletStore
-        .getState()
-        .wallet.balance.map(token => token.symbol);
-      const prices = await getPrices({ keys: tokenInBalance, currency });
+      const prices = await getPrices({ keys: tokenSymbols, currency });
       set(state => ({
         prices: {
           ...state.prices,
@@ -47,7 +43,7 @@ export const usePriceStore = create<PriceStoreState>(set => ({
           isLoading: false,
         },
       }));
-    } catch (error) {
+    } catch {
       set(state => ({ prices: { ...state.prices, isLoading: false } }));
     }
   },

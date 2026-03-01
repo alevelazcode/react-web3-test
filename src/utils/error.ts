@@ -1,4 +1,3 @@
-import { showError } from "@utils/message";
 export const ERROR_MESSAGES = Object.freeze({
   NOT_SUPPORT: "Not support",
   NOT_CONNECTED: "Not connected",
@@ -16,15 +15,14 @@ export class AppError extends Error {
 
   constructor(
     message: keyof typeof ERROR_MESSAGES | string = "ERROR",
-    code = 400
+    options?: { cause?: unknown; code?: number }
   ) {
     const msg = Object.keys(ERROR_MESSAGES).some(item => item === message)
       ? ERROR_MESSAGES[`${message as keyof typeof ERROR_MESSAGES}`]
       : message;
-    super(msg);
+    super(msg, { cause: options?.cause });
     Object.setPrototypeOf(this, AppError.prototype);
-    showError(message);
-    if (code) this.statusCode = 400;
+    if (options?.code) this.statusCode = options.code;
   }
 
   getErrorMessage(): string {

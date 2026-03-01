@@ -2,7 +2,7 @@ import { CryptoIcon } from "@components/icons/CryptoIcon";
 import { UnitNetwork } from "@constants/unitNetwork";
 import { useWalletStore } from "@store";
 import { DropdownProps } from "primereact/dropdown";
-import { FC, ReactNode, useMemo } from "react";
+import { FC, ReactNode, useCallback, useMemo } from "react";
 import { CustomSelect } from "./Select";
 import { SelectProps } from "./Select.types";
 
@@ -12,6 +12,26 @@ type TemplateFooter =
   | ((props: DropdownProps, hide: () => void) => ReactNode);
 type ItemTemplate = (option: string) => ReactNode;
 type TokenSelectProps = SelectProps;
+
+const selectedTokenTemplate: Template = (option, props) => {
+  if (option) {
+    return (
+      <div className="align-items-center flex gap-1">
+        <CryptoIcon symbol={option} className="size-5" />
+        <p>{option}</p>
+      </div>
+    );
+  }
+  return <span>{props.placeholder}</span>;
+};
+
+const tokenOptionTemplate: ItemTemplate = option => (
+  <div className="align-items-center flex gap-1">
+    <CryptoIcon symbol={option} className="size-5" />
+    <p>{option}</p>
+  </div>
+);
+
 export const TokenSelect: FC<TokenSelectProps> = ({
   onChange,
   value,
@@ -24,29 +44,8 @@ export const TokenSelect: FC<TokenSelectProps> = ({
     [defaultValue, contractAddress]
   );
 
-  const selectedTokenTemplate: Template = (option, props) => {
-    if (option) {
-      return (
-        <div className="align-items-center flex gap-1">
-          <CryptoIcon symbol={option} className="size-5" />
-          <p>{option}</p>
-        </div>
-      );
-    }
-    return <span>{props.placeholder}</span>;
-  };
-
-  const tokenOptionTemplate: ItemTemplate = option => {
-    return (
-      <div className="align-items-center flex gap-1">
-        <CryptoIcon symbol={option} className="size-5" />
-        <p>{option}</p>
-      </div>
-    );
-  };
-
-  const panelFooterTemplate: TemplateFooter = () => {
-    return (
+  const panelFooterTemplate: TemplateFooter = useCallback(
+    () => (
       <div className="px-3 py-2">
         {value ? (
           <p>
@@ -56,8 +55,10 @@ export const TokenSelect: FC<TokenSelectProps> = ({
           "No Token selected."
         )}
       </div>
-    );
-  };
+    ),
+    [value]
+  );
+
   return (
     <CustomSelect
       options={tokens}

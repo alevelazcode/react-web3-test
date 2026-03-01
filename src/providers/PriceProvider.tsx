@@ -2,7 +2,7 @@ import { CRYPTO_UNITS } from "@constants/unit";
 import { useWalletStore, WalletState } from "@store";
 import { StatePrices, usePriceStore } from "@store/prices";
 import { FCC } from "@types";
-import { createContext, useEffect, useMemo, useRef } from "react";
+import { createContext, useCallback, useEffect, useMemo, useRef } from "react";
 
 const currency = "usd";
 const secondsTimeToRefresh = 240;
@@ -18,7 +18,6 @@ interface PriceContextProps {
       }[];
   };
   totalAmount: number;
-  intervalRef: React.MutableRefObject<number | null>;
 }
 
 export const PriceContext = createContext<PriceContextProps>(
@@ -28,6 +27,15 @@ export const PriceProvider: FCC = ({ children }) => {
   const { getPrices, prices } = usePriceStore(state => state);
   const wallet = useWalletStore(state => state.wallet);
   const intervalRef = useRef<number | null>(null);
+
+  const tokenSymbols = useMemo(
+    () => wallet.balance.map(token => token.symbol),
+    [wallet.balance]
+  );
+
+  const fetchPrices = useCallback(() => {
+    getPrices(tokenSymbols, currency);
+  }, [getPrices, tokenSymbols]);
 
   const balanceWithPrices = useMemo(() => {
     return wallet.balance.map(token => {
@@ -47,27 +55,24 @@ export const PriceProvider: FCC = ({ children }) => {
     (acc, token) => acc + token.value,
     0
   );
+
   useEffect(() => {
-    getPrices(currency);
+    fetchPrices();
     const milliseconds = secondsTimeToRefresh * 1000;
     if (intervalRef.current) window.clearInterval(intervalRef.current);
-    intervalRef.current = window.setInterval(() => {
-      getPrices(currency);
-    }, milliseconds);
+    intervalRef.current = window.setInterval(fetchPrices, milliseconds);
     return () => {
-      intervalRef.current && window.clearInterval(intervalRef.current);
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchPrices]);
 
   const value = useMemo<PriceContextProps>(
     () => ({
       prices,
-      intervalRef,
       wallet: { ...wallet, balanceWithPrices },
       totalAmount,
     }),
-    [prices, intervalRef, wallet, balanceWithPrices, totalAmount]
+    [prices, wallet, balanceWithPrices, totalAmount]
   );
   return (
     <PriceContext.Provider value={value}>{children}</PriceContext.Provider>

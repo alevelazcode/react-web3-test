@@ -18,9 +18,6 @@ export const LinkBtn: FC<LinkBtnProps> = ({
       flex gap-0.5 justify-center items-center link-btn
       font-medium py-2 outline-0 ring-0 px-3 rounded-lg
       origin-center
-      bg-opacity-0
-      hover:bg-opacity-10
-      focus:bg-opacity-10
       ${btnClassNames[color as keyof typeof btnClassNames]}
       transition-all
       ease-in-out

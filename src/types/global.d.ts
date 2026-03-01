@@ -1,11 +1,11 @@
-import type { BrowserProvider, Eip1193Provider } from "ethers";
+import type { Eip1193Provider } from "ethers";
 import type { PhantomProvider } from "models";
 
 import type { MetaMaskInpageProvider } from "@metamask/providers";
 
 declare global {
   interface Window {
-    ethereum: Eip1193Provider & BrowserProvider & MetaMaskInpageProvider;
+    ethereum: Eip1193Provider & MetaMaskInpageProvider;
     solana: PhantomProvider;
     primeToast: import("primereact/toast").Toast | undefined | null;
   }

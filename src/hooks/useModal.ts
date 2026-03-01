@@ -1,4 +1,4 @@
-import { AppError } from "@utils";
+import { AppError, showError } from "@utils";
 import { useCallback, useState } from "react";
 
 export const useModal = <T>() => {
@@ -9,6 +9,7 @@ export const useModal = <T>() => {
 
   const onError = useCallback(
     (error = "Error") => {
+      showError(error);
       reject?.(new AppError(error));
       setOpen(false);
       setTitle(undefined);

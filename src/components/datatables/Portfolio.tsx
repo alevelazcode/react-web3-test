@@ -4,14 +4,12 @@ import { CalculatedPortfolio, usePrices } from "@hooks/usePrices";
 import { formatCurrency } from "@utils/formatCurrency";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useCallback } from "react";
 
+type RowData = CalculatedPortfolio["wallet"]["balanceWithPrices"][number];
 type BodyTemplate =
   | ReactNode
-  | ((
-      data: CalculatedPortfolio["wallet"]["balanceWithPrices"][number],
-      options: ColumnBodyOptions
-    ) => ReactNode);
+  | ((data: RowData, options: ColumnBodyOptions) => ReactNode);
 const tokenTemplate: BodyTemplate = rowData => (
   <div className="flex items-center gap-3">
     <CryptoIcon width={35} height={35} symbol={rowData.symbol} />
@@ -45,22 +43,23 @@ const percentageChange24hTemplate: BodyTemplate = rowData => (
 export const PortfolioTable: FC = () => {
   const { wallet, totalAmount } = usePrices();
 
-  const percentageOfTotalTemplate: BodyTemplate = rowData => {
-    const percentage = formatCurrency(
-      totalAmount > 0 ? rowData.value / totalAmount : 0,
-      "percent"
-    );
-    return <p className="font-semibold ">{percentage}</p>;
-  };
+  const percentageOfTotalTemplate: BodyTemplate = useCallback(
+    (rowData: RowData) => {
+      const percentage = formatCurrency(
+        totalAmount > 0 ? rowData.value / totalAmount : 0,
+        "percent"
+      );
+      return <p className="font-semibold">{percentage}</p>;
+    },
+    [totalAmount]
+  );
 
   return (
     <DataTable
       value={wallet.balanceWithPrices}
       sortMode="multiple"
       tableClassName={"custom-datatable"}
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-expect-error
-      rowClassName={"custom-datatable-row"}
+      rowClassName={() => "custom-datatable-row"}
     >
       <Column
         header="Token"
