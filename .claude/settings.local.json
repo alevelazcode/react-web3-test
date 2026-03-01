@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm remove alchemy-sdk)",
       "Bash(npx tsc --noEmit)",
-      "Bash(pnpm build)"
+      "Bash(pnpm build)",
+      "Bash(pnpm why gh-pages)",
+      "Bash(pnpm why serialize-javascript)"
     ]
   }
 }
